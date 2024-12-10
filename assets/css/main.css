@@ -1,0 +1,8 @@
+html, body, #__nuxt {
+    height: 100%;
+}
+
+@font-face {
+    font-family: 'CarterOne';
+    src: url('~/assets/fonts/CarterOne-Regular.ttf') format('truetype');
+}
