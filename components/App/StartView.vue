@@ -7,7 +7,7 @@
     <div class="flex flex-col space-y-4 pt-4">
       <input placeholder="How many viewers in your party?" />
       <input placeholder="How much time do you have?" />
-      <button>Start Popping!</button>
+      <button @click="$emit('startButtonClicked')">Start Popping!</button>
     </div>
   </main>
 </template>
