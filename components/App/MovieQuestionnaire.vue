@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const userInput = useUserInput();
 const moods = ["Funny", "Cerebral", "Scary", "Inspiring", "Romantic", "Weird"];
 </script>
 
@@ -6,12 +7,12 @@ const moods = ["Funny", "Cerebral", "Scary", "Inspiring", "Romantic", "Weird"];
   <main class="h-full flex flex-col space-y-3 items-center justify-center">
     <div class="question">
       <label>What's your favorite movie and why?</label>
-      <textarea id="favorite_movie" />
+      <textarea id="favorite_movie" v-model="userInput.favoriteMovie" />
     </div>
 
     <div class="question">
       <label>Who is your favorite actor and why?</label>
-      <textarea id="favorite_actor" />
+      <textarea id="favorite_actor" v-model="userInput.favoriteActor" />
     </div>
 
     <div class="question">
@@ -41,7 +42,7 @@ const moods = ["Funny", "Cerebral", "Scary", "Inspiring", "Romantic", "Weird"];
 }
 
 textarea {
-  @apply bg-popchoice-blue-lite rounded-lg h-16;
+  @apply bg-popchoice-blue-lite rounded-lg h-16 p-2;
 }
 
 label {
