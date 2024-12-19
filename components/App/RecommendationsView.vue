@@ -1,17 +1,24 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 
-const props = defineProps({
-  movies: Object,
-});
-
 const currentIndex = ref(0);
+const movies = ref([]);
 
 const prevCard = () => {
   if (currentIndex.value > 0) currentIndex.value--;
 };
 const nextCard = () => {
-  if (currentIndex.value < props.movies.length - 1) currentIndex.value++;
+  if (currentIndex.value < movies.value.length - 1) currentIndex.value++;
+};
+
+const getRecommendations = async () => {
+  movies.value = await $fetch("/api/recommend", {
+    method: "post",
+  });
+};
+
+const getPosterURL = (posterPath: string) => {
+  return `https://image.tmdb.org/t/p/w300${posterPath}`;
 };
 </script>
 
@@ -20,14 +27,20 @@ const nextCard = () => {
     <div class="carousel-container">
       <div
         class="card"
-        v-for="movie in movies"
+        v-for="(movie, index) in movies"
         :key="movie.id"
-        :class="{ active: movie.id === currentIndex }"
+        :class="{ active: index === currentIndex }"
       >
-        <img :src="movie.poster" alt="Poster Image" class="poster" />
-        <h2 class="text-lg">{{ movie.title }} ({{ movie.release_year }})</h2>
-        <p class="font-light text-sm">{{ movie.genre }}</p>
-        <p class="text-sm italic">{{ movie.plot_summary }}</p>
+        <img
+          :src="getPosterURL(movie.posterPath)"
+          alt="Poster Image"
+          class="poster"
+        />
+        <h2 class="text-lg">
+          {{ movie.title }} ({{ new Date(movie.releaseDate).getFullYear() }})
+        </h2>
+        <p class="font-light text-sm">{{ movie.genre.join(", ") }}</p>
+        <p class="text-sm italic">{{ movie.overview }}</p>
       </div>
     </div>
 
@@ -36,6 +49,7 @@ const nextCard = () => {
       <button @click="nextCard" :disabled="currentIndex === movies.length - 1">
         Next
       </button>
+      <button @click="getRecommendations">Get Recommendations</button>
     </div>
   </div>
 </template>
@@ -51,11 +65,11 @@ const nextCard = () => {
 }
 
 .card {
-  @apply min-w-full space-y-1 opacity-0 text-white p-4 bg-popchoice-blue-lite rounded-lg shadow-lg motion-safe:transition motion-safe:scale-90;
+  @apply min-w-full space-y-1 text-white p-4 bg-popchoice-blue-lite rounded-lg shadow-lg motion-safe:transition motion-safe:scale-90 motion-safe:transition-opacity opacity-0;
 }
 
 .card.active {
-  @apply opacity-100 motion-safe:scale-100;
+  @apply motion-safe:transition-opacity opacity-100 motion-safe:scale-100;
 }
 
 .carousel-controls {

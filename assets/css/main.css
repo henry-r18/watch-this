@@ -1,8 +1,13 @@
-html, body, #__nuxt {
-    height: 100%;
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+html,
+body,
+#__nuxt {
+  height: 100%;
 }
 
 @font-face {
-    font-family: 'CarterOne';
-    src: url('~/assets/fonts/CarterOne-Regular.ttf') format('truetype');
+  font-family: "CarterOne";
+  src: url("~/assets/fonts/CarterOne-Regular.ttf") format("truetype");
 }
