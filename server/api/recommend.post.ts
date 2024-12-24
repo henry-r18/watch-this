@@ -1,73 +1,98 @@
 import OpenAI from "openai";
+import { z } from "zod";
+
+const Recommendations = z.array(
+  z.object({
+    id: z.number().int(),
+    imdbID: z.string(),
+    title: z.string(),
+    overview: z.string(),
+    genres: z.string(),
+    releaseDate: z.string(),
+    runtime: z.number().int(),
+    posterPath: z.string(),
+  })
+);
+export type Recommendations = z.infer<typeof Recommendations>;
 
 const openai = new OpenAI();
 
-const MOVIE_RECOMMENDATION_ASSISTANT_ID = "asst_SXh1jAE7nKs43BNOUrkMdBUj";
-const MOVIE_RECOMMENDATION_THREAD_ID = "thread_qgeaEZQnaNhh93FQXkcmKpN4";
-const DATA_PARSER_ASSISTANT_ID = "asst_xiySwz4kthH9CuU8hgoB4Ic9";
-const DATA_PARSER_THREAD_ID = "thread_RDW7WmwTeaeej6NmkzlqMbDI";
+const runtimeConfig = useRuntimeConfig();
+const MOVIE_RECOMMENDATION_ASSISTANT_ID =
+  runtimeConfig.movieRecommendationAssistantID;
 
-async function extractData(recommendationText: string) {
-  let run = await openai.beta.threads.runs.createAndPoll(
-    DATA_PARSER_THREAD_ID,
-    {
-      assistant_id: DATA_PARSER_ASSISTANT_ID,
-      additional_messages: [
-        {
-          role: "user",
-          content: recommendationText,
-        },
-      ],
-    }
-  );
+const getPrompt = (userInput: any) => {
+  return `Recommend movies for ${userInput.partySize} ${
+    userInput.partySize > 1 ? "viewers" : "viewer"
+  }, with a maximum runtime of ${userInput.maxRuntime} minutes.
 
-  if (run.status === "completed") {
-    const messages = await openai.beta.threads.messages.list(run.thread_id, {
-      order: "desc",
-      limit: 1,
-    });
-    if (messages.data[0].content[0].type === "text") {
-      return messages.data[0].content[0].text.value;
-    }
+Base your recommendations on the following profile:
+
+**Favorite movie**: ${userInput.favoriteMovie}
+**Favorite actor**: ${userInput.favoriteActor}
+**Time period**: ${userInput.prefersRecent}
+**Keywords**: ${userInput.keywords.join(", ")}
+  `;
+};
+
+const parseMarkdown = (markdown: string) => {
+  const regex = new RegExp("^`+jsons*(.*?)s*`+$", "gms");
+  const match = regex.exec(markdown);
+
+  if (match) {
+    const jsonString = match[1];
+    return JSON.parse(jsonString);
   } else {
-    console.log(run.status);
+    console.warn(
+      "Unable to parse Assistant's response to JSON:\n\n" + markdown
+    );
   }
-}
+};
 
 export default defineEventHandler(async (event) => {
   console.info("Getting recommendations from Assistant...");
 
-  let run = await openai.beta.threads.runs.createAndPoll(
-    MOVIE_RECOMMENDATION_THREAD_ID,
-    {
+  const userInput = await readBody(event);
+  const prompt = getPrompt(userInput);
+
+  try {
+    let { id: threadID } = await openai.beta.threads.create();
+    let run = await openai.beta.threads.runs.createAndPoll(threadID, {
       assistant_id: MOVIE_RECOMMENDATION_ASSISTANT_ID,
-    }
-  );
-
-  if (run.status === "completed") {
-    const messages = await openai.beta.threads.messages.list(run.thread_id, {
-      order: "desc",
-      limit: 1,
+      additional_messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
     });
-    let recommendationText = "";
-    if (messages.data[0].content[0].type === "text") {
-      recommendationText = messages.data[0].content[0].text.value;
-    }
 
-    console.info("Parsing recommendations to JSON...");
-    const recommendationData = await extractData(recommendationText);
-
-    if (recommendationData) {
-      try {
-        let recommendationList = JSON.parse(recommendationData).list;
-        console.info("Success!");
-        return recommendationList;
-      } catch (e) {
-        console.log(e);
-        return e;
+    if (run.status === "completed") {
+      const messages = await openai.beta.threads.messages.list(run.thread_id, {
+        order: "desc",
+        limit: 1,
+      });
+      let recommendationText = "";
+      if (messages.data[0].content[0].type === "text") {
+        recommendationText = messages.data[0].content[0].text.value;
       }
+
+      console.info("Checking recommendation is valid JSON...");
+      // Assistant should return a Markdown codeblock with JSON
+      const recommendationJSON = parseMarkdown(recommendationText);
+      // Validate that JSON matches Zod schema
+      const recommendationData = Recommendations.safeParse(recommendationJSON);
+
+      if (recommendationData.success) {
+        console.info("Success!");
+        return recommendationData.data;
+      } else {
+        console.log(recommendationData.error.message);
+      }
+    } else {
+      console.log(run.status);
     }
-  } else {
-    console.log(run.status);
+  } catch (e) {
+    console.log(e);
   }
 });

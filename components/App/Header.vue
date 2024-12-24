@@ -1,9 +1,5 @@
 <script setup lang="ts"></script>
 
-<template>
-  <div>
-    Component: App/Header
-  </div>
-</template>
+<template></template>
 
 <style scoped></style>

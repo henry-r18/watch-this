@@ -1,33 +1,25 @@
 <script setup lang="ts">
-const userInput = useUserInput();
+const currentView = useCurrentView();
 </script>
 
 <template>
-  <main class="h-full flex flex-col space-y-2 items-center justify-center">
-    <img src="~/assets/img/icon.svg" class="size-32" />
-    <h1 class="text-3xl text-white font-display">PopChoice</h1>
-    <div class="flex flex-col space-y-4 pt-4">
-      <input
-        type="number"
-        min="1"
-        step="1"
-        placeholder="How many viewers in your party?"
-        v-model="userInput.partySize"
-      />
-      <input
-        placeholder="How much time do you have?"
-        v-model="userInput.maxRuntime"
-      />
-      <button @click="$emit('startButtonClicked')">Start Popping!</button>
+  <UContainer
+    class="h-full max-w-max flex flex-col items-center justify-center space-y-4"
+    as="main"
+  >
+    <div class="flex flex-col items-center space-y-1">
+      <img src="~/assets/img/icon.svg" class="size-32" />
+      <h1 class="text-3xl font-display text-neutral-200">Watch This!</h1>
     </div>
-  </main>
+    <AppStartViewQuestions />
+
+    <UButton
+      class="w-full"
+      label="Start"
+      @click="currentView = 'questionnaire'"
+      :ui="{ label: 'w-full text-center' }"
+    />
+  </UContainer>
 </template>
 
-<style scoped>
-input {
-  @apply h-12 w-64 rounded-lg bg-popchoice-blue-lite text-center text-white;
-}
-button {
-  @apply h-12 w-64 rounded-lg bg-popchoice-green text-center font-semibold uppercase;
-}
-</style>
+<style scoped></style>

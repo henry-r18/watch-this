@@ -1,24 +1,18 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-const currentView = ref("start");
+const currentView = useCurrentView();
 const userInput = useUserInput();
 </script>
 
 <template>
-  <UApp class="h-full flex flex-col bg-popchoice-blue">
-    <AppHeader />
-    <p class="text-white">{{ userInput }}</p>
-    <AppStartView
-      class="grow"
-      v-if="currentView === 'start'"
-      @startButtonClicked="currentView = 'questionnaire'"
-    />
-    <AppMovieQuestionnaire
-      v-if="currentView === 'questionnaire'"
-      @recommendButtonClicked="currentView = 'recommendations'"
-    />
-    <AppRecommendationsView v-if="currentView === 'recommendations'" />
-    <AppFooter />
+  <UApp>
+    <UContainer class="h-full bg-midnight flex flex-col">
+      <AppHeader />
+      <AppStartView v-if="currentView === 'start'" />
+      <AppQuestionnaire v-if="currentView === 'questionnaire'" />
+      <AppRecommendations v-if="currentView === 'recommendations'" />
+      <AppFooter />
+    </UContainer>
   </UApp>
 </template>
