@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const currentView = useCurrentView();
-const userInput = useUserInput();
 </script>
 
 <template>
@@ -10,7 +9,7 @@ const userInput = useUserInput();
   >
     <div class="flex flex-col items-center space-y-1">
       <img src="~/assets/img/icon.svg" class="size-32" />
-      <h1 class="text-3xl font-display text-neutral-200">PopChoice</h1>
+      <h1 class="text-3xl font-display text-neutral-200">Watch This!</h1>
     </div>
     <AppStartViewQuestions />
 

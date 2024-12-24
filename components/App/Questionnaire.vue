@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref } from "vue";
-
 const currentView = useCurrentView();
 const userInput = useUserInput();
 
@@ -12,6 +10,7 @@ const keywordItems = [
   "Inspiring",
   "Romantic",
   "Weird",
+  "Thrilling",
 ];
 </script>
 

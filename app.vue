@@ -6,10 +6,10 @@ const userInput = useUserInput();
 </script>
 
 <template>
-  <UApp class="h-full">
-    <UContainer class="h-full bg-midnight">
+  <UApp>
+    <UContainer class="h-full bg-midnight flex flex-col">
       <AppHeader />
-      <AppStartView class="grow" v-if="currentView === 'start'" />
+      <AppStartView v-if="currentView === 'start'" />
       <AppQuestionnaire v-if="currentView === 'questionnaire'" />
       <AppRecommendations v-if="currentView === 'recommendations'" />
       <AppFooter />
