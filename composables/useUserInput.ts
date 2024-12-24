@@ -1,10 +1,10 @@
 export const useUserInput = () => {
   return useState("userInput", () => ({
-    partySize: "",
-    maxRuntime: "",
+    partySize: 1,
+    maxRuntime: "120",
     favoriteMovie: "",
     favoriteActor: "",
-    preferredEra: "",
-    preferredTone: "",
+    prefersRecent: "",
+    keywords: [],
   }));
 };
